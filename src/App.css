@@ -1,5 +1,5 @@
 .app-container {
-    padding: 20px;
+    padding: 10px;
     font-family: Arial, sans-serif;
   }
   
@@ -35,7 +35,9 @@
     background: rgba(0,0,0,0.4);
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    padding-top: 200px;
+
   }
   
   .modal-box {
