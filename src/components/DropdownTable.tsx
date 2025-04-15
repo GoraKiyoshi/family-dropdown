@@ -5,19 +5,32 @@ interface ThuocItem {
   tenThuoc: string;
 }
 
+interface GroupItem {
+  id: number;
+  tenNhom: string;
+}
+
 interface DataItem {
   id: number;
-  group: string;
+  group: number;
   drugs: number[];
 }
 
 interface Props {
   data: DataItem[];
   danhMucThuoc: ThuocItem[];
+  danhMucNhom?: GroupItem[];
   onDoubleClick: (item: DataItem) => void;
 }
 
-function DropdownTable({ data, danhMucThuoc, onDoubleClick }: Props) {
+// Default group options for display
+const defaultGroupOptions: GroupItem[] = [
+  { id: 1, tenNhom: "Đọc giống - Nhìn giống" },
+  { id: 2, tenNhom: "Đọc khác - nhìn khác" },
+  { id: 3, tenNhom: "Nghe giống - Viết giống" }
+];
+
+function DropdownTable({ data, danhMucThuoc, danhMucNhom = defaultGroupOptions, onDoubleClick }: Props) {
   return (
     <table className="data-table">
       <thead>
@@ -29,7 +42,7 @@ function DropdownTable({ data, danhMucThuoc, onDoubleClick }: Props) {
       <tbody>
         {data.map((item) => (
           <tr key={item.id} onDoubleClick={() => onDoubleClick(item)}>
-            <td>{item.group}</td>
+            <td>{danhMucNhom.find(g => g.id === item.group)?.tenNhom || `Group ${item.group}`}</td>
             <td>
               {item.drugs.map((id) => {
                 const drug = danhMucThuoc.find((d) => d.id === id);

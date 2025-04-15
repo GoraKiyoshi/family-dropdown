@@ -12,19 +12,24 @@ interface ThuocItem {
 interface Props {
   visible: boolean;
   mode: "create" | "edit";
-  formData: { group: string; drugs: number[] };
+  formData: { group: number; drugs: number[] };
   onClose: () => void;
   onSave: () => void;
-  setFormData: (data: { group: string; drugs: number[] }) => void;
+  setFormData: (data: { group: number; drugs: number[] }) => void;
   danhMucThuoc: ThuocItem[];
+  danhMucNhom?: GroupItem[];
 }
 
-// Options for "Tên nhóm LASA"
-const groupOptions = [
-  "Đọc giống - Nhìn giống",
-  "Đọc khác - nhìn khác",
-  "Nghe giống - Viết giống",
-  "Nhóm khác",
+interface GroupItem {
+  id: number;
+  tenNhom: string;
+}
+
+// Options for "Tên nhóm LASA" - these should be imported from the parent component
+const groupOptions: GroupItem[] = [
+  { id: 1, tenNhom: "Đọc giống - Nhìn giống" },
+  { id: 2, tenNhom: "Đọc khác - nhìn khác" },
+  { id: 3, tenNhom: "Nghe giống - Viết giống" }
 ];
 
 function DropdownModal({
@@ -35,6 +40,7 @@ function DropdownModal({
   onSave,
   setFormData,
   danhMucThuoc,
+  danhMucNhom = groupOptions,
 }: Props) {
   const [error, setError] = useState<{ group?: string; drugs?: string }>({});
 
@@ -76,6 +82,8 @@ function DropdownModal({
             </div>
             <DropDownBox
               dataSource={groupOptions}
+              displayExpr="tenNhom"
+              valueExpr="id"
               value={formData.group}
               placeholder="Chọn tên nhóm"
               showClearButton={true}
@@ -94,10 +102,13 @@ function DropdownModal({
               contentRender={() => (
                 <List
                   dataSource={groupOptions}
+                  displayExpr="tenNhom"
+                  keyExpr="id"
                   selectionMode="single"
-                  selectedItems={[formData.group]}
+                  selectedItemKeys={formData.group ? [formData.group] : []}
                   onItemClick={(e: ItemClickEvent) => {
-                    setFormData({ ...formData, group: e.itemData });
+                    const selectedGroup = e.itemData as GroupItem;
+                    setFormData({ ...formData, group: selectedGroup.id });
                     setError((prev) => ({ ...prev, group: undefined }));
                   }}
                 />
