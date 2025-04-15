@@ -3,11 +3,7 @@ import DropdownCustom from "./DropdownCustom";
 import DropDownBox from "devextreme-react/drop-down-box";
 import List from "devextreme-react/list";
 import type { ItemClickEvent } from "devextreme/ui/list";
-
-interface ThuocItem {
-  id: number;
-  tenThuoc: string;
-}
+import { ThuocItem, GroupItem } from "../types/interfaces";
 
 interface Props {
   visible: boolean;
@@ -20,18 +16,6 @@ interface Props {
   danhMucNhom?: GroupItem[];
 }
 
-interface GroupItem {
-  id: number;
-  tenNhom: string;
-}
-
-// Options for "Tên nhóm LASA" - these should be imported from the parent component
-const groupOptions: GroupItem[] = [
-  { id: 1, tenNhom: "Đọc giống - Nhìn giống" },
-  { id: 2, tenNhom: "Đọc khác - nhìn khác" },
-  { id: 3, tenNhom: "Nghe giống - Viết giống" }
-];
-
 function DropdownModal({
   visible,
   mode,
@@ -40,14 +24,19 @@ function DropdownModal({
   onSave,
   setFormData,
   danhMucThuoc,
-  danhMucNhom = groupOptions,
-}: Props) {
+  danhMucNhom = [],
+}: Props): React.ReactElement | null {
   const [error, setError] = useState<{ group?: string; drugs?: string }>({});
 
   if (!visible) return null;
 
   const handleSave = () => {
     const newError: { group?: string; drugs?: string } = {};
+    
+    if (!formData.group) {
+      newError.group = "Tên nhóm không được để trống";
+    }
+    
     if (!formData.drugs || formData.drugs.length === 0) {
       newError.drugs = "Thuốc không được để trống";
     }
@@ -81,7 +70,7 @@ function DropdownModal({
               <span className="required-marker">*</span>
             </div>
             <DropDownBox
-              dataSource={groupOptions}
+              dataSource={danhMucNhom}
               displayExpr="tenNhom"
               valueExpr="id"
               value={formData.group}
@@ -101,7 +90,7 @@ function DropdownModal({
               }}
               contentRender={() => (
                 <List
-                  dataSource={groupOptions}
+                  dataSource={danhMucNhom}
                   displayExpr="tenNhom"
                   keyExpr="id"
                   selectionMode="single"
@@ -114,6 +103,11 @@ function DropdownModal({
                 />
               )}
             />
+            {error.group && (
+              <div className="error-message">
+                {error.group}
+              </div>
+            )}
           </div>
 
           <div className="field margin-top">

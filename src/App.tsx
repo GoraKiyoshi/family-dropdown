@@ -1,35 +1,17 @@
 import React, { useState } from 'react';
 import DropdownModal from './components/DropdownModal';
 import DropdownTable from './components/DropdownTable';
-import "./App.css"
+import "./App.css";
+import { ThuocItem, GroupItem, DataItem } from './types/interfaces';
 
-// Define the interface for drug items
-interface ThuocItem {
-  id: number;
-  tenThuoc: string;
-}
-
-// Define the interface for group items
-interface GroupItem {
-  id: number;
-  tenNhom: string;
-}
-
-// Define the interface for data items
-interface DataItem {
-  id: number;
-  group: number;
-  drugs: number[];
-}
-
-// Group options
+// Available group options
 const danhMucNhom: GroupItem[] = [
   { id: 1, tenNhom: "Đọc giống - Nhìn giống" },
   { id: 2, tenNhom: "Đọc khác - nhìn khác" },
   { id: 3, tenNhom: "Nghe giống - Viết giống" }
 ];
 
-// Drug items with duplicates removed
+// Drug items
 const danhMucThuoc: ThuocItem[] = [
   { id: 1, tenThuoc: "ACUpan 20mg/2ml Inj" },
   { id: 2, tenThuoc: "Agimol 80mg Sachets" },

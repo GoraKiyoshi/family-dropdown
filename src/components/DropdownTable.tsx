@@ -1,20 +1,5 @@
 import React from 'react';
-
-interface ThuocItem {
-  id: number;
-  tenThuoc: string;
-}
-
-interface GroupItem {
-  id: number;
-  tenNhom: string;
-}
-
-interface DataItem {
-  id: number;
-  group: number;
-  drugs: number[];
-}
+import { ThuocItem, GroupItem, DataItem } from '../types/interfaces';
 
 interface Props {
   data: DataItem[];
@@ -23,14 +8,9 @@ interface Props {
   onDoubleClick: (item: DataItem) => void;
 }
 
-// Default group options for display
-const defaultGroupOptions: GroupItem[] = [
-  { id: 1, tenNhom: "Đọc giống - Nhìn giống" },
-  { id: 2, tenNhom: "Đọc khác - nhìn khác" },
-  { id: 3, tenNhom: "Nghe giống - Viết giống" }
-];
 
-function DropdownTable({ data, danhMucThuoc, danhMucNhom = defaultGroupOptions, onDoubleClick }: Props) {
+
+function DropdownTable({ data, danhMucThuoc, danhMucNhom = [], onDoubleClick }: Props): React.ReactElement {
   return (
     <table className="data-table">
       <thead>
@@ -56,4 +36,4 @@ function DropdownTable({ data, danhMucThuoc, danhMucNhom = defaultGroupOptions, 
   );
 }
 
-export default DropdownTable
+export default DropdownTable;

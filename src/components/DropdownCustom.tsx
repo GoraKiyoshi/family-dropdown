@@ -1,11 +1,7 @@
 import React from 'react';
 import TagBox from 'devextreme-react/tag-box';
 import ArrayStore from 'devextreme/data/array_store';
-
-interface ThuocItem {
-  id: number;
-  tenThuoc: string;
-}
+import { ThuocItem } from '../types/interfaces';
 
 interface Props {
   value: number[];
@@ -13,11 +9,12 @@ interface Props {
   danhMucThuoc: ThuocItem[];
 }
 
-function DropdownCustom({ value, onChange, danhMucThuoc }: Props) {
+function DropdownCustom({ value, onChange, danhMucThuoc }: Props): React.ReactElement {
   const thuocStore = new ArrayStore({
     data: danhMucThuoc,
     key: 'id',
   });
+  
   return (
     <TagBox
       dataSource={thuocStore}
@@ -29,9 +26,9 @@ function DropdownCustom({ value, onChange, danhMucThuoc }: Props) {
       onValueChanged={(e) => onChange(e.value)}
       placeholder="Tìm và chọn thuốc..."
       showClearButton
-      showSelectionControls={true} //select box
-
+      showSelectionControls={true}
     />
   );
 }
-export default DropdownCustom
+
+export default DropdownCustom;
