@@ -3,29 +3,22 @@ import DropdownCustom from "./DropdownCustom";
 import DropDownBox from "devextreme-react/drop-down-box";
 import List from "devextreme-react/list";
 import type { ItemClickEvent } from "devextreme/ui/list";
+import { GroupItem, groupOptions } from "../data/groupData";
+import { ThuocItem } from "../data/drugData";
 
-interface ThuocItem {
-  id: number;
-  tenThuoc: string;
-}
+// Using shared ThuocItem interface from data file
 
 interface Props {
   visible: boolean;
   mode: "create" | "edit";
-  formData: { group: string; drugs: number[] };
+  formData: { group: number | null; drugs: number[] };
   onClose: () => void;
   onSave: () => void;
-  setFormData: (data: { group: string; drugs: number[] }) => void;
+  setFormData: (data: { group: number | null; drugs: number[] }) => void;
   danhMucThuoc: ThuocItem[];
 }
 
-// Options for "Tên nhóm LASA"
-const groupOptions = [
-  "Đọc giống - Nhìn giống",
-  "Đọc khác - nhìn khác",
-  "Nghe giống - Viết giống",
-  "Nhóm khác",
-];
+// Using group options from shared data file
 
 function DropdownModal({
   visible,
@@ -42,6 +35,11 @@ function DropdownModal({
 
   const handleSave = () => {
     const newError: { group?: string; drugs?: string } = {};
+    
+    if (formData.group === null) {
+      newError.group = "Tên nhóm không được để trống";
+    }
+    
     if (!formData.drugs || formData.drugs.length === 0) {
       newError.drugs = "Thuốc không được để trống";
     }
@@ -76,13 +74,15 @@ function DropdownModal({
             </div>
             <DropDownBox
               dataSource={groupOptions}
+              displayExpr="name"
+              valueExpr="id"
               value={formData.group}
               placeholder="Chọn tên nhóm"
               showClearButton={true}
               inputAttr={{ "aria-label": "Tên nhóm LASA" }}
               onValueChanged={(e) => {
                 setFormData({ ...formData, group: e.value });
-                if (!e.value) {
+                if (!e.value && e.value !== 0) {
                   setError((prev) => ({
                     ...prev,
                     group: "Tên nhóm không được để trống",
@@ -94,10 +94,12 @@ function DropdownModal({
               contentRender={() => (
                 <List
                   dataSource={groupOptions}
+                  displayExpr="name"
+                  // valueExpr="id"
                   selectionMode="single"
-                  selectedItems={[formData.group]}
+                  selectedItemKeys={formData.group !== null ? [formData.group] : []}
                   onItemClick={(e: ItemClickEvent) => {
-                    setFormData({ ...formData, group: e.itemData });
+                    setFormData({ ...formData, group: e.itemData.id });
                     setError((prev) => ({ ...prev, group: undefined }));
                   }}
                 />

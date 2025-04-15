@@ -1,21 +1,19 @@
 import React from 'react';
+import { groupOptions } from '../data/groupData';
+import { ThuocItem } from '../data/drugData';
+import { DataItem } from '../data/dataModel';
 
-interface ThuocItem {
-  id: number;
-  tenThuoc: string;
-}
+// Using shared ThuocItem interface from data file
 
-interface DataItem {
-  id: number;
-  group: string;
-  drugs: number[];
-}
+// Using shared DataItem interface from data file
 
 interface Props {
   data: DataItem[];
   danhMucThuoc: ThuocItem[];
   onDoubleClick: (item: DataItem) => void;
 }
+
+// Using group options from shared data file
 
 function DropdownTable({ data, danhMucThuoc, onDoubleClick }: Props) {
   return (
@@ -29,7 +27,7 @@ function DropdownTable({ data, danhMucThuoc, onDoubleClick }: Props) {
       <tbody>
         {data.map((item) => (
           <tr key={item.id} onDoubleClick={() => onDoubleClick(item)}>
-            <td>{item.group}</td>
+            <td>{groupOptions.find(g => g.id === item.group)?.name}</td>
             <td>
               {item.drugs.map((id) => {
                 const drug = danhMucThuoc.find((d) => d.id === id);
