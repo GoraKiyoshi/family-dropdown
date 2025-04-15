@@ -1,11 +1,9 @@
 import React from 'react';
 import TagBox from 'devextreme-react/tag-box';
 import ArrayStore from 'devextreme/data/array_store';
+import { ThuocItem } from '../data/drugData';
 
-interface ThuocItem {
-  id: number;
-  tenThuoc: string;
-}
+// Using shared ThuocItem interface from data file
 
 interface Props {
   value: number[];
