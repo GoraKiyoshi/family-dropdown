@@ -4,7 +4,6 @@ import DropDownBox from "devextreme-react/drop-down-box";
 import List from "devextreme-react/list";
 import type { ItemClickEvent } from "devextreme/ui/list";
 
-
 interface Props {
   visible: boolean;
   mode: "create" | "edit";
@@ -75,7 +74,19 @@ function DropdownModal({
               dataSource={groupOptions}
               value={formData.group}
               placeholder="Chọn tên nhóm"
+              showClearButton={true}
               inputAttr={{ "aria-label": "Tên nhóm LASA" }}
+              onValueChanged={(e) => {
+                setFormData({ ...formData, group: e.value });
+                if (!e.value) {
+                  setError((prev) => ({
+                    ...prev,
+                    group: "Tên nhóm không được để trống",
+                  }));
+                } else {
+                  setError((prev) => ({ ...prev, group: undefined }));
+                }
+              }}
               contentRender={() => (
                 <List
                   dataSource={groupOptions}
