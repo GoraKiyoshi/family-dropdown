@@ -79,7 +79,6 @@ function DropdownModal({
               dataSource={groupOptions}
               value={formData.group}
               placeholder="Chọn tên nhóm"
-              showClearButton
               inputAttr={{ "aria-label": "Tên nhóm LASA" }}
               contentRender={() => (
                 <List

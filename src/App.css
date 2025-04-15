@@ -44,6 +44,9 @@
     width: 500px;
     border-radius: 8px;
     box-shadow: 0 0 10px #000;
+    position: absolute !important;
+    z-index: 1000;
+    margin-top: 4px;
   }
   
   .modal-header {
