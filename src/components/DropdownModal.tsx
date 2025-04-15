@@ -36,10 +36,6 @@ function DropdownModal({
 
   const handleSave = () => {
     const newError: { group?: string; drugs?: string } = {};
-
-    if (!formData.group.trim()) {
-      newError.group = "Tên nhóm không được để trống.";
-    }
     if (!formData.drugs || formData.drugs.length === 0) {
       newError.drugs = "Thuốc không được để trống";
     }
