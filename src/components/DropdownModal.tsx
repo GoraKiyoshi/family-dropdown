@@ -1,5 +1,10 @@
 import React, { useState } from "react";
 import DropdownCustom from "../components/DropdownCustom";
+import DropDownBox from "devextreme-react/drop-down-box";
+import List from "devextreme-react/list";
+import type { ItemClickEvent } from "devextreme/ui/list";
+
+
 interface Props {
   visible: boolean;
   mode: "create" | "edit";
@@ -8,6 +13,14 @@ interface Props {
   onSave: () => void;
   setFormData: (data: { group: string; drugs: number[] }) => void;
 }
+
+// Options for "Tên nhóm LASA"
+const groupOptions = [
+  "Đọc giống - Nhìn giống",
+  "Đọc khác - nhìn khác",
+  "Nghe giống - Viết giống",
+  "Nhóm khác",
+];
 
 function DropdownModal({
   visible,
@@ -45,7 +58,6 @@ function DropdownModal({
       <div className="modal-box">
         <div className="modal-header">
           <strong>{mode === "create" ? "Thêm mới" : "Chỉnh sửa"}</strong>
-
           <button
             className="w-8 h-8 border border-black rounded-full flex items-center justify-center text-black hover:bg-black hover:text-white transition"
             onClick={onClose}
@@ -63,23 +75,24 @@ function DropdownModal({
               <label style={{ whiteSpace: "nowrap" }}>Tên nhóm LASA</label>
               <span style={{ color: "red" }}>*</span>
             </div>
-            <input
-              type="text"
+            <DropDownBox
+              dataSource={groupOptions}
               value={formData.group}
-              onChange={(e) => {
-                setFormData({ ...formData, group: e.target.value });
-                if (e.target.value.trim()) {
-                  setError((prev) => ({ ...prev, group: undefined }));
-                }
-              }}
-              placeholder="Nhập tên nhóm"
-              style={{ flex: 1 }}
+              placeholder="Chọn tên nhóm"
+              showClearButton
+              inputAttr={{ "aria-label": "Tên nhóm LASA" }}
+              contentRender={() => (
+                <List
+                  dataSource={groupOptions}
+                  selectionMode="single"
+                  selectedItems={[formData.group]}
+                  onItemClick={(e: ItemClickEvent) => {
+                    setFormData({ ...formData, group: e.itemData });
+                    setError((prev) => ({ ...prev, group: undefined }));
+                  }}
+                />
+              )}
             />
-            {error.group && (
-              <div style={{ color: "red", fontSize: "0.875rem" }}>
-                {error.group}
-              </div>
-            )}
           </div>
 
           <div className="field" style={{ marginTop: "12px" }}>
