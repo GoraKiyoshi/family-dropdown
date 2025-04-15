@@ -77,6 +77,49 @@
     padding: 6px 12px;
   }
   
+  .action-btn {
+    background-color: #36A1B6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .action-btn:hover {
+    background-color: #2a8795;
+  }
+  
+  .field-column {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .label-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .label-container label {
+    white-space: nowrap;
+  }
+  
+  .required-marker {
+    color: red;
+  }
+  
+  .margin-top {
+    margin-top: 12px;
+  }
+  
+  .error-message {
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 5px;
+  }
+  
 
   .create-button {
     position: absolute;

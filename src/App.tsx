@@ -1,10 +1,23 @@
-
 import React, { useState } from 'react';
-import DropdownModal from '../src/components/DropdownModal';
-import DropdownTable from '../src/components/DropdownTable';
+import DropdownModal from './components/DropdownModal';
+import DropdownTable from './components/DropdownTable';
 import "./App.css"
 
-const danhMucThuoc = [
+// Define the interface for drug items
+interface ThuocItem {
+  id: number;
+  tenThuoc: string;
+}
+
+// Define the interface for data items
+interface DataItem {
+  id: number;
+  group: string;
+  drugs: number[];
+}
+
+// Use unique drug items to avoid duplication
+const danhMucThuoc: ThuocItem[] = [
   { id: 1, tenThuoc: "ACUpan 20mg/2ml Inj" },
   { id: 2, tenThuoc: "Agimol 80mg Sachets" },
   { id: 3, tenThuoc: "Arcoxia 60mg" },
@@ -19,16 +32,16 @@ const danhMucThuoc = [
   { id: 12, tenThuoc: "Arcoxia 20mg" },
 ];
 
-const initialData = [
+const initialData: DataItem[] = [
   { id: 1, group: "Đọc giống - Nhìn giống", drugs: [1, 2, 3] },
   { id: 2, group: "Đọc khác - nhìn khác", drugs: [1, 2] },
 ];
 
 export default function App() {
-  const [data, setData] = useState(initialData);
+  const [data, setData] = useState<DataItem[]>(initialData);
   const [modalOpen, setModalOpen] = useState(false);
   const [mode, setMode] = useState<'create' | 'edit'>('create');
-  const [formData, setFormData] = useState({ group: '', drugs: [] as number[] });
+  const [formData, setFormData] = useState<{ group: string; drugs: number[] }>({ group: '', drugs: [] });
   const [editId, setEditId] = useState<number | null>(null);
 
   const openCreate = () => {
@@ -37,7 +50,7 @@ export default function App() {
     setModalOpen(true);
   };
 
-  const openEdit = (item: typeof data[0]) => {
+  const openEdit = (item: DataItem) => {
     setFormData({ group: item.group, drugs: item.drugs });
     setEditId(item.id);
     setMode('edit');
@@ -47,8 +60,8 @@ export default function App() {
   const handleSave = () => {
     if (mode === 'create') {
       setData([...data, { ...formData, id: data.length + 1 }]);
-    } else {
-      setData(data.map(d => d.id === editId ? { ...formData, id: editId! } : d));
+    } else if (editId !== null) {
+      setData(data.map(d => d.id === editId ? { ...formData, id: editId } : d));
     }
     setModalOpen(false);
   };
@@ -64,6 +77,7 @@ export default function App() {
         onClose={() => setModalOpen(false)}
         onSave={handleSave}
         setFormData={setFormData}
+        danhMucThuoc={danhMucThuoc}
       />
     </div>
   );

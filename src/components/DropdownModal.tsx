@@ -1,8 +1,13 @@
 import React, { useState } from "react";
-import DropdownCustom from "../components/DropdownCustom";
+import DropdownCustom from "./DropdownCustom";
 import DropDownBox from "devextreme-react/drop-down-box";
 import List from "devextreme-react/list";
 import type { ItemClickEvent } from "devextreme/ui/list";
+
+interface ThuocItem {
+  id: number;
+  tenThuoc: string;
+}
 
 interface Props {
   visible: boolean;
@@ -11,6 +16,7 @@ interface Props {
   onClose: () => void;
   onSave: () => void;
   setFormData: (data: { group: string; drugs: number[] }) => void;
+  danhMucThuoc: ThuocItem[];
 }
 
 // Options for "Tên nhóm LASA"
@@ -28,6 +34,7 @@ function DropdownModal({
   onClose,
   onSave,
   setFormData,
+  danhMucThuoc,
 }: Props) {
   const [error, setError] = useState<{ group?: string; drugs?: string }>({});
 
@@ -62,13 +69,10 @@ function DropdownModal({
         </div>
 
         <div className="modal-body">
-          <div
-            className="field"
-            style={{ display: "flex", flexDirection: "column", gap: "4px" }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <label style={{ whiteSpace: "nowrap" }}>Tên nhóm LASA</label>
-              <span style={{ color: "red" }}>*</span>
+          <div className="field field-column">
+            <div className="label-container">
+              <label>Tên nhóm LASA</label>
+              <span className="required-marker">*</span>
             </div>
             <DropDownBox
               dataSource={groupOptions}
@@ -101,12 +105,13 @@ function DropdownModal({
             />
           </div>
 
-          <div className="field" style={{ marginTop: "12px" }}>
+          <div className="field margin-top">
             <label>
-              Thuốc LASA <span style={{ color: "red" }}>*</span>
+              Thuốc LASA <span className="required-marker">*</span>
             </label>
             <DropdownCustom
               value={formData.drugs}
+              danhMucThuoc={danhMucThuoc}
               onChange={(value) => {
                 setFormData({ ...formData, drugs: value });
                 if (value.length > 0) {
@@ -115,9 +120,7 @@ function DropdownModal({
               }}
             />
             {error.drugs && (
-              <div
-                style={{ color: "red", fontSize: "0.875rem", marginTop: "5px" }}
-              >
+              <div className="error-message">
                 {error.drugs}
               </div>
             )}
@@ -125,18 +128,10 @@ function DropdownModal({
         </div>
 
         <div className="modal-footer">
-          <button
-            className="save-btn"
-            onClick={handleSave}
-            style={{ backgroundColor: "#36A1B6", color: "white" }}
-          >
+          <button className="save-btn action-btn" onClick={handleSave}>
             Lưu
           </button>
-          <button
-            className="cancel-btn"
-            onClick={onClose}
-            style={{ backgroundColor: "#36A1B6", color: "white" }}
-          >
+          <button className="cancel-btn action-btn" onClick={onClose}>
             Hủy
           </button>
         </div>

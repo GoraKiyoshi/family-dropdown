@@ -1,9 +1,20 @@
 import React from 'react';
 
+interface ThuocItem {
+  id: number;
+  tenThuoc: string;
+}
+
+interface DataItem {
+  id: number;
+  group: string;
+  drugs: number[];
+}
+
 interface Props {
-  data: { id: number; group: string; drugs: number[] }[];
-  danhMucThuoc: { id: number; tenThuoc: string }[];
-  onDoubleClick: (item: any) => void;
+  data: DataItem[];
+  danhMucThuoc: ThuocItem[];
+  onDoubleClick: (item: DataItem) => void;
 }
 
 function DropdownTable({ data, danhMucThuoc, onDoubleClick }: Props) {
