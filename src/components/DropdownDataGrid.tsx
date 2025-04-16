@@ -1,21 +1,28 @@
-import React, { useState } from "react";
+
+
+import React from 'react';
 import DataGrid, {
   Column,
   Editing,
   Popup,
   Paging,
   Lookup,
-  Form,
-} from "devextreme-react/data-grid";
-import DropDownBox from "devextreme-react/drop-down-box";
-import List from "devextreme-react/list";
-import { Item } from "devextreme-react/form";
-import { groupOptions } from "../data/groupData";
-import { ThuocItem } from "../data/drugData";
-import { DataItem } from "../data/dataModel";
-import DropdownCustom from "./DropdownCustom";
-import { ItemClickEvent } from "devextreme/ui/list";
-import "../App.css";
+  Form as DataGridForm,
+  RequiredRule,
+  CustomRule,
+} from 'devextreme-react/data-grid';
+import { Item } from 'devextreme-react/form';
+import { groupOptions } from '../data/groupData';
+import { ThuocItem } from '../data/drugData';
+import { DataItem } from '../data/dataModel';
+import DropdownCustom from './DropdownCustom';
+import '../App.css';
+
+// Define interface for render function's itemData
+interface RenderItemData {
+  dataField?: string;
+  component?: any;
+}
 
 interface Props {
   data: DataItem[];
@@ -30,80 +37,108 @@ const DropdownDataGrid = ({
   danhMucThuoc,
   onDoubleClick,
 }: Props) => {
-  const [formData, setFormData] = useState<{
-    group: number | null;
-    drugs: number[];
-  }>({
-    group: null,
-    drugs: [],
-  });
-
-  const [error, setError] = useState<{ group?: string; drugs?: string }>({});
-
+  // Handle saving changes (insert or update)
   const handleSaving = (e: any) => {
-    const { group, drugs } = formData;
-    const newError: typeof error = {};
-
-    if (group === null) newError.group = "Tên nhóm không được để trống";
-    if (!drugs || drugs.length === 0)
-      newError.drugs = "Thuốc không được để trống";
-
-    if (Object.keys(newError).length > 0) {
-      setError(newError);
-      e.cancel = true;
-    } else {
-      setError({});
-      const change = e.changes?.[0];
-      if (change) {
-        const updatedData = { ...change.data, group, drugs };
-        if (change.type === "insert") {
-          setData((prevData) => [
-            ...prevData,
-            { id: prevData.length + 1, ...updatedData },
-          ]);
-        } else if (change.type === "update") {
-          setData((prevData) =>
-            prevData.map((item) =>
-              item.id === change.key ? { ...item, ...updatedData } : item
-            )
+    const change = e.changes?.[0];
+    if (change) {
+      console.log('Change data:', change.data);
+      const existingItem: DataItem = change.key
+        ? data.find((item: DataItem) => item.id === change.key) || { id: 0, group: 0, drugs: [] }
+        : { id: 0, group: 0, drugs: [] };
+  
+      const updatedItemData = { ...existingItem, ...change.data };
+  
+      // Ensure drugs is always an array, even if undefined
+      updatedItemData.drugs = Array.isArray(updatedItemData.drugs)
+        ? updatedItemData.drugs
+        : existingItem.drugs || [];
+  
+      console.log('Updated item data:', updatedItemData);
+  
+      if (change.type === 'insert') {
+        const newId = data.length > 0 ? Math.max(...data.map((d) => d.id)) + 1 : 1;
+        setData((prevData) => {
+          const newData = [...prevData, { id: newId, ...updatedItemData }];
+          console.log('New state after insert:', newData);
+          return newData;
+        });
+        console.log('Inserted item with ID:', newId, updatedItemData);
+      } else if (change.type === 'update') {
+        setData((prevData) => {
+          const newData = prevData.map((item) =>
+            item.id === change.key ? { ...item, ...updatedItemData } : item
           );
-        }
-        e.changes = [];
-        e.component.cancelEditData(); 
-        console.log(updatedData)
+          console.log('New state after update:', newData);
+          return newData;
+        });
+        console.log('Updated item with ID:', change.key, updatedItemData);
       }
+  
+      e.cancel = true;
+      e.component.cancelEditData();
+    } else {
+      console.log('No changes detected or save cancelled.');
     }
   };
 
-  const handleInitNewRow = () => {
-    setFormData({ group: null, drugs: [] });
-    setError({});
+  // Initialize new row with default values
+  const handleInitNewRow = (e: any) => {
+    e.data.group = null;
+    e.data.drugs = [];
+    console.log('Initialized new row:', e.data);
   };
 
-  const handleEditingStart = (e: any) => {
-    const { group, drugs } = e.data;
-    setFormData({
-      group: group || null,
-      drugs: drugs || [],
-    });
-    setError({});
-  };
-
+  // Handle double-click to trigger onDoubleClick and enter edit mode
   const handleRowDoubleClick = (e: any) => {
     onDoubleClick(e.data);
-    e.component.editRow(e.rowIndex); // open popup editor
+    e.component.editRow(e.rowIndex);
+  };
+
+  // Render custom TagBox for drugs field
+  const renderDrugsDropdown = (itemData: RenderItemData) => {
+    const onCustomChange = (newValue: number[]) => {
+      if (itemData.dataField) {
+        console.log('Drugs dropdown changed:', newValue);
+        const valueToUpdate = Array.isArray(newValue) ? newValue : [];
+        itemData.component?.updateData(itemData.dataField, valueToUpdate);
+        itemData.component?.option('formData', {
+          ...itemData.component.option('formData'),
+          [itemData.dataField]: valueToUpdate,
+        });
+      }
+    };
+  
+    const formData = itemData.component?.option('formData') || {};
+    // Ensure dataField is defined before accessing formData
+    const currentValue = itemData.dataField && Array.isArray(formData[itemData.dataField])
+      ? formData[itemData.dataField]
+      : Array.isArray(itemData.component?.option('data')?.drugs)
+      ? itemData.component?.option('data')?.drugs
+      : [];
+  
+    console.log('Form data:', formData);
+    console.log('Row data drugs:', itemData.component?.option('data')?.drugs);
+    console.log('Final currentValue:', currentValue);
+  
+    return (
+      <DropdownCustom
+        value={currentValue}
+        danhMucThuoc={danhMucThuoc}
+        onChange={onCustomChange}
+      />
+    );
   };
 
   return (
     <div
       id="data-grid-demo"
       style={{
-        width: "calc(100% - 20px)",
-        margin: "10px",
-        padding: "0",
-        boxSizing: "border-box",
-        border: "1px solid #ddd",
-        overflow: "hidden",
+        width: 'calc(100% - 20px)',
+        margin: '10px',
+        padding: '0',
+        boxSizing: 'border-box',
+        border: '1px solid #ddd',
+        overflow: 'hidden',
       }}
     >
       <DataGrid
@@ -119,114 +154,83 @@ const DropdownDataGrid = ({
         height="90%"
         onSaving={handleSaving}
         onInitNewRow={handleInitNewRow}
-        onEditingStart={handleEditingStart}
         onRowDblClick={handleRowDoubleClick}
       >
         <Paging enabled={false} />
-        <Editing mode="popup" allowAdding>
+        <Editing
+          mode="popup"
+          allowAdding
+          allowUpdating
+          refreshMode="reshape"
+          useIcons
+        >
           <Popup title="Nhóm LASA" showTitle width={700} height="auto" />
-          <Form colCount={1} showColonAfterLabel>
+          <DataGridForm colCount={1} showColonAfterLabel>
             <Item
-              label={{ text: "Tên nhóm LASA", requiredMark: true }}
-              isRequired
-              render={() => (
-                <>
-                  <DropDownBox
-                    dataSource={groupOptions}
-                    displayExpr="name"
-                    valueExpr="id"
-                    value={formData.group}
-                    placeholder="Chọn tên nhóm"
-                    showClearButton
-                    onValueChanged={(e) => {
-                      setFormData({ ...formData, group: e.value });
-                      if (!e.value && e.value !== 0) {
-                        setError((prev) => ({
-                          ...prev,
-                          group: "Tên nhóm không được để trống",
-                        }));
-                      } else {
-                        setError((prev) => ({ ...prev, group: undefined }));
-                      }
-                    }}
-                    contentRender={() => (
-                      <List
-                        dataSource={groupOptions}
-                        displayExpr="name"
-                        selectionMode="single"
-                        selectedItemKeys={
-                          formData.group !== null ? [formData.group] : []
-                        }
-                        onItemClick={(e: ItemClickEvent) => {
-                          if (!e.itemData) return;
-                          setFormData({ ...formData, group: e.itemData.id });
-                          setError((prev) => ({ ...prev, group: undefined }));
-                        }}
-                      />
-                    )}
-                  />
-                  {error.group && (
-                    <div className="dx-field-error">{error.group}</div>
-                  )}
-                </>
-              )}
-            />
-
+              dataField="group"
+              editorType="dxSelectBox"
+              label={{ text: 'Tên nhóm LASA' }}
+              editorOptions={{
+                dataSource: groupOptions,
+                displayExpr: 'name',
+                valueExpr: 'id',
+                placeholder: 'Chọn tên nhóm',
+                showClearButton: true,
+                searchEnabled: true,
+              }}
+            >
+              <RequiredRule message="Tên nhóm không được để trống" />
+            </Item>
             <Item
-              label={{ text: "Thuốc LASA", requiredMark: true }}
-              isRequired
-              render={() => (
-                <>
-                  <DropdownCustom
-                    value={formData.drugs}
-                    danhMucThuoc={danhMucThuoc}
-                    onChange={(value) => {
-                      setFormData({ ...formData, drugs: value });
-                      if (value.length > 0) {
-                        setError((prev) => ({ ...prev, drugs: undefined }));
-                      }
-                    }}
-                  />
-                  {error.drugs && (
-                    <div className="dx-field-error">{error.drugs}</div>
-                  )}
-                </>
-              )}
-            />
-          </Form>
+              dataField="drugs"
+              label={{ text: 'Thuốc LASA' }}
+              render={renderDrugsDropdown}
+            >
+              <RequiredRule message="Thuốc không được để trống" />
+              <CustomRule
+                message="Phải chọn ít nhất một thuốc"
+                validationCallback={(value: number[]) =>
+                  Array.isArray(value) && value.length > 0
+                }
+              />
+            </Item>
+          </DataGridForm>
         </Editing>
-
         <Column dataField="group" caption="Tên nhóm" width="30%">
           <Lookup dataSource={groupOptions} valueExpr="id" displayExpr="name" />
         </Column>
-
         <Column
           dataField="drugs"
           caption="Tên thuốc"
           width="70%"
           cellRender={({ data }) => {
-            const drugNames = data.drugs
-              .map(
-                (id: number) => danhMucThuoc.find((d) => d.id === id)?.tenThuoc
-              )
+            const drugIds = Array.isArray(data.drugs) ? data.drugs : [];
+            const drugNames = drugIds
+              .map((id: number) => danhMucThuoc.find((d) => d.id === id)?.tenThuoc)
               .filter(Boolean);
 
             return (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                {drugNames.map((name: string, index: number) => (
-                  <span
-                    key={index}
-                    style={{
-                      backgroundColor: "#d3d3d3",
-                      padding: "4px 8px",
-                      borderRadius: "8px",
-                      fontWeight: "500",
-                      fontSize: "14px",
-                    }}
-                  >
-                    {name}
-                  </span>
-                ))}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {drugNames.length > 0 ? (
+                  drugNames.map((name: string, index: number) => (
+                    <span
+                      key={index}
+                      style={{
+                        backgroundColor: '#e0e0e0',
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        fontWeight: '500',
+                        fontSize: '13px',
+                        whiteSpace: 'nowrap',
+                        margin: '2px 0',
+                      }}
+                    >
+                      {name}
+                    </span>
+                  ))
+                ) : (
+                  <span style={{ color: '#999' }}>No drugs selected</span>
+                )}
               </div>
             );
           }}
@@ -237,3 +241,4 @@ const DropdownDataGrid = ({
 };
 
 export default DropdownDataGrid;
+

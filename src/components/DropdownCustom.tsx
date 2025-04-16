@@ -1,9 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import TagBox from 'devextreme-react/tag-box';
 import ArrayStore from 'devextreme/data/array_store';
 import { ThuocItem } from '../data/drugData';
-
-// Using shared ThuocItem interface from data file
 
 interface Props {
   value: number[];
@@ -12,10 +10,16 @@ interface Props {
 }
 
 function DropdownCustom({ value, onChange, danhMucThuoc }: Props) {
-  const thuocStore = new ArrayStore({
-    data: danhMucThuoc,
-    key: 'id',
-  });
+  // Memoize ArrayStore to prevent unnecessary recreation
+  const thuocStore = useMemo(
+    () =>
+      new ArrayStore({
+        data: danhMucThuoc,
+        key: 'id',
+      }),
+    [danhMucThuoc]
+  );
+
   return (
     <TagBox
       dataSource={thuocStore}
@@ -23,13 +27,17 @@ function DropdownCustom({ value, onChange, danhMucThuoc }: Props) {
       displayExpr="tenThuoc"
       valueExpr="id"
       searchEnabled
-      value={value}
-      onValueChanged={(e) => onChange(e.value)}
+      value={Array.isArray(value) ? value : []} // Ensure value is an array
+      onValueChanged={(e) => {
+        const newValue = Array.isArray(e.value) ? e.value : [];
+        console.log('DropdownCustom value changed:', newValue);
+        onChange(newValue);
+      }}
       placeholder="Tìm và chọn thuốc..."
       showClearButton
-      showSelectionControls={true} //select box
-
+      showSelectionControls={true}
     />
   );
 }
-export default DropdownCustom
+
+export default DropdownCustom;
