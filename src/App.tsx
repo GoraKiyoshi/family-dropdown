@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import DropdownModal from './components/DropdownModal';
 import DropdownTable from './components/DropdownTable';
 import "./App.css";
-import { GroupItem } from './data/groupData';
-import { ThuocItem, danhMucThuoc } from './data/drugData';
+// import { GroupItem } from './data/groupData';
+import {  danhMucThuoc } from './data/drugData';
+// import {  ThuocItem } from './data/drugData';
 import { DataItem } from './data/dataModel';
 
 // Using shared interfaces from data files

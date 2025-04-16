@@ -3,7 +3,7 @@ import DropdownCustom from "./DropdownCustom";
 import DropDownBox from "devextreme-react/drop-down-box";
 import List from "devextreme-react/list";
 import type { ItemClickEvent } from "devextreme/ui/list";
-import { GroupItem, groupOptions } from "../data/groupData";
+import { groupOptions } from "../data/groupData";
 import { ThuocItem } from "../data/drugData";
 
 // Using shared ThuocItem interface from data file
