@@ -3,21 +3,6 @@
     font-family: Arial, sans-serif;
   }
   
-  .data-table {
-    width: 100%;
-    margin-top: 20px;
-    border-collapse: collapse;
-  }
-  
-  .data-table th, .data-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-  }
-  
-  .data-table td {
-    cursor: pointer;
-  }
-  
   .tag {
     background-color: #ccc;
     padding: 2px 6px;
@@ -26,36 +11,6 @@
     display: inline-block;
   }
   
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.4);
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding-top: 200px;
-
-  }
-  
-  .modal-box {
-    background: white;
-    padding: 20px;
-    width: 500px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px #000;
-    position: absolute !important;
-    z-index: 1000;
-    margin-top: 4px;
-  }
-  
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
   
   .close-btn {
     cursor: pointer;
@@ -144,6 +99,39 @@
   .create-button:active {
     transform: translateY(1px); 
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  }
+  
+  
+  #data-grid-demo {
+    width: 100%; /* Ensure it uses the full available width */
+    max-width: 98%; /* Limit to 98% to give some margin */
+    margin: 0 auto; /* Center it horizontally */
+    padding: 10px; /* Optional: Adds some padding around the grid */
+    box-sizing: border-box; /* Ensure padding and border are included in the width calculation */
+  }
+  
+  .devextreme-react-data-grid {
+    width: 100%; /* Ensures that DataGrid takes up the full width of its parent */
+    height: 80vh; /* Keeps your height as is, or change it as per your requirement */
+  }
+
+
+  .popup-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .popup-actions button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .popup-actions button:hover {
+    background-color: #0056b3;
   }
   
   

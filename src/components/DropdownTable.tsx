@@ -1,11 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { groupOptions } from '../data/groupData';
 import { ThuocItem } from '../data/drugData';
 import { DataItem } from '../data/dataModel';
-
-// Using shared ThuocItem interface from data file
-
-// Using shared DataItem interface from data file
+import DataGrid, { Column, Paging, Lookup } from 'devextreme-react/data-grid';
+import DropdownModal from './DropdownModal';
 
 interface Props {
   data: DataItem[];
@@ -13,32 +11,79 @@ interface Props {
   onDoubleClick: (item: DataItem) => void;
 }
 
-// Using group options from shared data file
-
 function DropdownTable({ data, danhMucThuoc, onDoubleClick }: Props) {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [mode, setMode] = useState<'create' | 'edit'>('create');
+  const [formData, setFormData] = useState<{ group: number | null; drugs: number[] }>({
+    group: null,
+    drugs: [],
+  });
+
+  const handleEdit = (item: DataItem) => {
+    setFormData({
+      group: item.group || null,
+      drugs: item.drugs || [],
+    });
+    setMode('edit');
+    setModalVisible(true);
+  };
+
+  const handleRowDoubleClick = (e: any) => {
+    onDoubleClick(e.data);
+  };
+
   return (
-    <table className="data-table">
-      <thead>
-        <tr>
-          <th>Tên nhóm LASA</th>
-          <th>Thuốc LASA</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((item) => (
-          <tr key={item.id} onDoubleClick={() => onDoubleClick(item)}>
-            <td>{groupOptions.find(g => g.id === item.group)?.name}</td>
-            <td>
-              {item.drugs.map((id) => {
-                const drug = danhMucThuoc.find((d) => d.id === id);
-                return <span key={id} className="tag">{drug?.tenThuoc}</span>;
-              })}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div id="data-grid-demo" style={{ width: '100%', maxWidth: '98%', margin: '0 auto', padding: '10px' }}>
+      <DataGrid
+        dataSource={data}
+        keyExpr="id"
+        showBorders
+        hoverStateEnabled
+        rowAlternationEnabled
+        repaintChangesOnly
+        allowColumnReordering
+        allowColumnResizing
+        focusedRowEnabled
+        height="70vh"
+        onRowDblClick={handleRowDoubleClick}
+      >
+        <Paging enabled={false} />
+        <Column dataField="group" caption="Tên nhóm" width={200}>
+          <Lookup
+            dataSource={groupOptions}
+            valueExpr="id"
+            displayExpr="name"
+          />
+        </Column>
+        <Column
+          dataField="drugs"
+          caption="Tên thuốc"
+          width={250}
+          cellRender={({ data }) => {
+            const drugNames = data.drugs
+              .map((drugId: number) => {
+                const drug = danhMucThuoc.find((item) => item.id === drugId);
+                return drug?.tenThuoc || '';
+              })
+              .filter(Boolean)
+              .join(', ');
+            return <span>{drugNames}</span>;
+          }}
+        />
+      </DataGrid>
+
+      <DropdownModal
+        visible={modalVisible}
+        mode={mode}
+        formData={formData}
+        onClose={() => setModalVisible(false)}
+        onSave={() => setModalVisible(false)} // Replace with real save logic
+        setFormData={setFormData}
+        danhMucThuoc={danhMucThuoc}
+      />
+    </div>
   );
 }
 
-export default DropdownTable
+export default DropdownTable;
+

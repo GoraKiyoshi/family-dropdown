@@ -58,11 +58,15 @@ export default function App() {
   
     setModalOpen(false);
   };
-  
+
 
   return (
     <div className="app-container">
-      <DropdownTable data={data} danhMucThuoc={danhMucThuoc} onDoubleClick={openEdit} />
+      <DropdownTable 
+      data={data} 
+      danhMucThuoc={danhMucThuoc} 
+      onDoubleClick={openEdit} 
+      />
       <button className="create-button" onClick={openCreate}>Thêm mới</button>
       <DropdownModal
         visible={modalOpen}
