@@ -71,16 +71,6 @@ function DropdownTable({ data, danhMucThuoc, onDoubleClick }: Props) {
           }}
         />
       </DataGrid>
-
-      <DropdownModal
-        visible={modalVisible}
-        mode={mode}
-        formData={formData}
-        onClose={() => setModalVisible(false)}
-        onSave={() => setModalVisible(false)} // Replace with real save logic
-        setFormData={setFormData}
-        danhMucThuoc={danhMucThuoc}
-      />
     </div>
   );
 }

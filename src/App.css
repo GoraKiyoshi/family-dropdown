@@ -102,36 +102,3 @@
   }
   
   
-  #data-grid-demo {
-    width: 100%; /* Ensure it uses the full available width */
-    max-width: 98%; /* Limit to 98% to give some margin */
-    margin: 0 auto; /* Center it horizontally */
-    padding: 10px; /* Optional: Adds some padding around the grid */
-    box-sizing: border-box; /* Ensure padding and border are included in the width calculation */
-  }
-  
-  .devextreme-react-data-grid {
-    width: 100%; /* Ensures that DataGrid takes up the full width of its parent */
-    height: 80vh; /* Keeps your height as is, or change it as per your requirement */
-  }
-
-
-  .popup-actions {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-  }
-  
-  .popup-actions button {
-    padding: 10px 20px;
-    border: none;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-  }
-  
-  .popup-actions button:hover {
-    background-color: #0056b3;
-  }
-  
-  
