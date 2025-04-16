@@ -14,18 +14,26 @@ import { groupOptions } from "../data/groupData";
 import { ThuocItem } from "../data/drugData";
 import { DataItem } from "../data/dataModel";
 import DropdownCustom from "./DropdownCustom";
-import { ItemClickEvent } from 'devextreme/ui/list';
+import { ItemClickEvent } from "devextreme/ui/list";
 import "../App.css";
 
 interface Props {
-    data: DataItem[];
-    setData: React.Dispatch<React.SetStateAction<DataItem[]>>;
-    danhMucThuoc: ThuocItem[];
-    onDoubleClick: (item: DataItem) => void;  
-  }  
+  data: DataItem[];
+  setData: React.Dispatch<React.SetStateAction<DataItem[]>>;
+  danhMucThuoc: ThuocItem[];
+  onDoubleClick: (item: DataItem) => void;
+}
 
-const DropdownDataGrid = ({ data, danhMucThuoc, onDoubleClick }: Props) => {
-  const [formData, setFormData] = useState<{ group: number | null; drugs: number[] }>({
+const DropdownDataGrid = ({
+  data,
+  setData,
+  danhMucThuoc,
+  onDoubleClick,
+}: Props) => {
+  const [formData, setFormData] = useState<{
+    group: number | null;
+    drugs: number[];
+  }>({
     group: null,
     drugs: [],
   });
@@ -34,41 +42,70 @@ const DropdownDataGrid = ({ data, danhMucThuoc, onDoubleClick }: Props) => {
 
   const handleSaving = (e: any) => {
     const { group, drugs } = formData;
-
     const newError: typeof error = {};
+
     if (group === null) newError.group = "Tên nhóm không được để trống";
-    if (!drugs || drugs.length === 0) newError.drugs = "Thuốc không được để trống";
+    if (!drugs || drugs.length === 0)
+      newError.drugs = "Thuốc không được để trống";
 
     if (Object.keys(newError).length > 0) {
       setError(newError);
       e.cancel = true;
     } else {
       setError({});
-      e.data.group = group;
-      e.data.drugs = drugs;
+      const change = e.changes?.[0];
+      if (change) {
+        const updatedData = { ...change.data, group, drugs };
+        if (change.type === "insert") {
+          setData((prevData) => [
+            ...prevData,
+            { id: prevData.length + 1, ...updatedData },
+          ]);
+        } else if (change.type === "update") {
+          setData((prevData) =>
+            prevData.map((item) =>
+              item.id === change.key ? { ...item, ...updatedData } : item
+            )
+          );
+        }
+        e.changes = [];
+        e.component.cancelEditData(); 
+        console.log(updatedData)
+      }
     }
   };
 
-  const handleRowDoubleClick = (e: any) => {
-    onDoubleClick(e.data);
-  };
-
-  const handleInitNewRow = (e: any) => {
+  const handleInitNewRow = () => {
     setFormData({ group: null, drugs: [] });
     setError({});
   };
 
   const handleEditingStart = (e: any) => {
-    const { data } = e;
+    const { group, drugs } = e.data;
     setFormData({
-      group: data.group || null,
-      drugs: data.drugs || [],
+      group: group || null,
+      drugs: drugs || [],
     });
     setError({});
   };
 
+  const handleRowDoubleClick = (e: any) => {
+    onDoubleClick(e.data);
+    e.component.editRow(e.rowIndex); // open popup editor
+  };
+
   return (
-    <div id="data-grid-demo" style={{ width: "100%", maxWidth: "98%", margin: "0 auto", padding: "10px" }}>
+    <div
+      id="data-grid-demo"
+      style={{
+        width: "calc(100% - 20px)",
+        margin: "10px",
+        padding: "0",
+        boxSizing: "border-box",
+        border: "1px solid #ddd",
+        overflow: "hidden",
+      }}
+    >
       <DataGrid
         dataSource={data}
         keyExpr="id"
@@ -79,19 +116,14 @@ const DropdownDataGrid = ({ data, danhMucThuoc, onDoubleClick }: Props) => {
         allowColumnReordering
         allowColumnResizing
         focusedRowEnabled
-        height="70vh"
-        onRowDblClick={(e) => onDoubleClick(e.data)}
+        height="90%"
         onSaving={handleSaving}
         onInitNewRow={handleInitNewRow}
         onEditingStart={handleEditingStart}
+        onRowDblClick={handleRowDoubleClick}
       >
         <Paging enabled={false} />
-        <Editing
-          mode="popup"
-          allowUpdating
-          allowAdding
-          allowDeleting
-        >
+        <Editing mode="popup" allowAdding>
           <Popup title="Nhóm LASA" showTitle width={700} height="auto" />
           <Form colCount={1} showColonAfterLabel>
             <Item
@@ -109,7 +141,10 @@ const DropdownDataGrid = ({ data, danhMucThuoc, onDoubleClick }: Props) => {
                     onValueChanged={(e) => {
                       setFormData({ ...formData, group: e.value });
                       if (!e.value && e.value !== 0) {
-                        setError((prev) => ({ ...prev, group: "Tên nhóm không được để trống" }));
+                        setError((prev) => ({
+                          ...prev,
+                          group: "Tên nhóm không được để trống",
+                        }));
                       } else {
                         setError((prev) => ({ ...prev, group: undefined }));
                       }
@@ -119,17 +154,20 @@ const DropdownDataGrid = ({ data, danhMucThuoc, onDoubleClick }: Props) => {
                         dataSource={groupOptions}
                         displayExpr="name"
                         selectionMode="single"
-                        selectedItemKeys={formData.group !== null ? [formData.group] : []}
+                        selectedItemKeys={
+                          formData.group !== null ? [formData.group] : []
+                        }
                         onItemClick={(e: ItemClickEvent) => {
-                            if (!e.itemData) return; // 👈 Guard against undefined
-                            setFormData({ ...formData, group: e.itemData.id });
-                            setError((prev) => ({ ...prev, group: undefined }));
-                          }}
-                          
+                          if (!e.itemData) return;
+                          setFormData({ ...formData, group: e.itemData.id });
+                          setError((prev) => ({ ...prev, group: undefined }));
+                        }}
                       />
                     )}
                   />
-                  {error.group && <div className="dx-field-error">{error.group}</div>}
+                  {error.group && (
+                    <div className="dx-field-error">{error.group}</div>
+                  )}
                 </>
               )}
             />
@@ -149,29 +187,48 @@ const DropdownDataGrid = ({ data, danhMucThuoc, onDoubleClick }: Props) => {
                       }
                     }}
                   />
-                  {error.drugs && <div className="dx-field-error">{error.drugs}</div>}
+                  {error.drugs && (
+                    <div className="dx-field-error">{error.drugs}</div>
+                  )}
                 </>
               )}
             />
           </Form>
         </Editing>
 
-        <Column dataField="group" caption="Tên nhóm" width={200}>
+        <Column dataField="group" caption="Tên nhóm" width="30%">
           <Lookup dataSource={groupOptions} valueExpr="id" displayExpr="name" />
         </Column>
+
         <Column
           dataField="drugs"
           caption="Tên thuốc"
-          width={250}
+          width="70%"
           cellRender={({ data }) => {
             const drugNames = data.drugs
-              .map((drugId: number) => {
-                const drug = danhMucThuoc.find((item) => item.id === drugId);
-                return drug?.tenThuoc || "";
-              })
-              .filter(Boolean)
-              .join(", ");
-            return <span>{drugNames}</span>;
+              .map(
+                (id: number) => danhMucThuoc.find((d) => d.id === id)?.tenThuoc
+              )
+              .filter(Boolean);
+
+            return (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                {drugNames.map((name: string, index: number) => (
+                  <span
+                    key={index}
+                    style={{
+                      backgroundColor: "#d3d3d3",
+                      padding: "4px 8px",
+                      borderRadius: "8px",
+                      fontWeight: "500",
+                      fontSize: "14px",
+                    }}
+                  >
+                    {name}
+                  </span>
+                ))}
+              </div>
+            );
           }}
         />
       </DataGrid>

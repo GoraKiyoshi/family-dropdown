@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import DropdownDataGrid from "./components/DropdownDataGrid"; // This is your new merged file
-import "./App.css";
+import "./lasa-style.css";
 import { danhMucThuoc } from "./data/drugData";
 import { DataItem } from "./data/dataModel";
 
@@ -17,7 +17,7 @@ export default function App() {
   };
 
   return (
-    <div className="app-container">
+    <div className="app-container" style={{ width: "100%", height: "100vh", padding: 0, margin: 0, boxSizing: "border-box", background: "#f5f5f5" }}>
       <DropdownDataGrid
         data={data}
         setData={setData}
