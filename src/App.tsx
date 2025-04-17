@@ -97,7 +97,7 @@ const App = () => {
             height={300}
           />
 
-          <Form colCount={1} labelLocation="top">
+          <Form colCount={1} labelLocation="top" cssClass="compact-form">
             <Item
               dataField="groupName"
               editorType="dxSelectBox"
