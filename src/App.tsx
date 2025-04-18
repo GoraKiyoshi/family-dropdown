@@ -214,11 +214,13 @@ interface GroupDrugMapping {
 const customStore = new CustomStore<GroupDrugMapping, number>({
   key: "id",
   load: async () => {
-    // Check if data exists in localStorage, if not return initial data
     const storedData = localStorage.getItem("groupDrugMappings");
     if (storedData) {
-      return JSON.parse(storedData) as GroupDrugMapping[]; // Type assertion here
+      const parsedData: GroupDrugMapping[] = JSON.parse(storedData);
+      console.log("Loaded data:", parsedData); // Check what data is loaded
+      return parsedData;
     }
+    console.log("No data found in localStorage.");
     return []; // Return empty array if no data found
   },
   insert: async (values) => {
