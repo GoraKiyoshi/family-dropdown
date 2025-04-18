@@ -1,24 +1,36 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import DataGrid, { Column, Editing, Popup, Form } from "devextreme-react/data-grid";
 import { Item } from "devextreme-react/form";
 import { TagBox } from "devextreme-react/tag-box";
 import CustomStore from "devextreme/data/custom_store";
-import groups from "../src/data/groups.json";
-import drugs from "../src/data/drugs.json";
-
 import "./App.css";
 
-const initialData = [
+// Type definitions
+interface Drug {
+  id: number;
+  name: string;
+}
+
+interface Group {
+  name: string;
+}
+
+interface GroupDrugMapping {
+  id: number;
+  groupName: string;
+  drugIds: number[];
+}
+
+// Initial in-memory data
+const initialData: GroupDrugMapping[] = [
   { id: 1, groupName: "Đọc giống - Nhìn giống", drugIds: [1, 2, 3] },
   { id: 2, groupName: "Đọc khác - nhìn khác", drugIds: [2, 4] },
 ];
 
-// Tạo CustomStore để quản lý CRUD
-const customStore = new CustomStore({
+// CustomStore logic (no real backend)
+const customStore = new CustomStore<GroupDrugMapping, number>({
   key: "id",
-  load: async () => {
-    return initialData;
-  },
+  load: async () => initialData,
   insert: async (values) => {
     const newId = initialData.length ? Math.max(...initialData.map((d) => d.id)) + 1 : 1;
     const newItem = { ...values, id: newId };
@@ -42,13 +54,31 @@ const customStore = new CustomStore({
 const App = () => {
   const dataGridRef = useRef<any>(null);
 
-  const groupOptions = groups;
-  const drugsData = drugs;
+  const [groupOptions, setGroupOptions] = useState<Group[]>([]);
+  const [drugsData, setDrugsData] = useState<Drug[]>([]);
 
+  // Load groups and drugs from public/data/
+  useEffect(() => {
+    const loadData = async () => {
+      const groupsRes = await fetch("/data/groups.json");
+      const drugsRes = await fetch("/data/drugs.json");
+
+      const groupsJson = await groupsRes.json();
+      const drugsJson = await drugsRes.json();
+
+      setGroupOptions(groupsJson);
+      setDrugsData(drugsJson);
+    };
+
+    loadData();
+  }, []);
+
+  // Double-click row to edit
   const handleRowDblClick = (e: any) => {
     dataGridRef.current?.instance?.editRow(e.rowIndex);
   };
 
+  // Custom rendering for drug list tags
   const renderTagBox = (cellData: any) => {
     const ids: number[] = cellData.value || [];
     const selectedDrugs = drugsData.filter((drug) => ids.includes(drug.id));
@@ -84,14 +114,11 @@ const App = () => {
         <Editing
           mode="popup"
           allowAdding={true}
-          // allowUpdating={true}
-          // allowDeleting={true}
           startEditAction="dblClick"
           useIcons={true}
         >
           <Popup title="Thông tin" showTitle={true} width={500} height={300} />
-          <Form colCount={1} labelLocation="top" >
-          {/* <Form colCount={1} labelLocation="top" cssClass="compact-form"> */}
+          <Form colCount={1} labelLocation="top">
             <Item
               dataField="groupName"
               editorType="dxSelectBox"
@@ -136,19 +163,18 @@ const App = () => {
               onValueChanged={(e) => setValue(e.value)}
               searchEnabled
               showSelectionControls
-              // applyValueMode="useButtons"
               multiline
               showDropDownButton
               placeholder="Tìm và chọn thuốc..."
               dropDownOptions={{ height: 300 }}
               onSelectionChanged={(e) => {
                 if (e.addedItems.length > 0) {
-                  (e.component.field() as HTMLInputElement).value = ""; // clear the textr
-                  e.component.close(); // close the drop down list
-                }
+                  (e.component.field() as HTMLInputElement).value = "";
+                  e.component.close();
                 //còn hiển thị giá trị search trên thanh input
                 //custom xóa thì phải thao tác close dropdown
                 //https://supportcenter.devexpress.com/ticket/details/t994950/tagbox-how-to-clear-the-search-text-after-selecting-an-item
+                }
               }}
             />
           )}
@@ -160,3 +186,4 @@ const App = () => {
 };
 
 export default App;
+
