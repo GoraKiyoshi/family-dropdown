@@ -207,7 +207,7 @@ interface Group {
 interface GroupDrugMapping {
   id: number;
   groupName: string;
-  drugIds: number[];
+  drugNames: string[]; // Changed from drugIds to drugNames
 }
 
 // CustomStore logic (no real backend)
@@ -280,8 +280,8 @@ const App = () => {
 
   // Custom rendering for drug list tags
   const renderTagBox = (cellData: any) => {
-    const ids: number[] = cellData.value || [];
-    const selectedDrugs = drugsData.filter((drug) => ids.includes(drug.id));
+    const names: string[] = cellData.value || [];
+    const selectedDrugs = drugsData.filter((drug) => names.includes(drug.name));
     return (
       <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
         {selectedDrugs.map((drug) => (
@@ -331,11 +331,11 @@ const App = () => {
               }}
             />
             <Item
-              dataField="drugIds"
+              dataField="drugNames" // Change this field to drugNames
               editorType="dxTagBox"
               editorOptions={{
                 items: drugsData,
-                valueExpr: "id",
+                valueExpr: "name", // Use drug name instead of id
                 displayExpr: "name",
                 searchEnabled: true,
                 showSelectionControls: true,
@@ -352,13 +352,13 @@ const App = () => {
         <Column dataField="groupName" caption="Tên nhóm" />
 
         <Column
-          dataField="drugIds"
+          dataField="drugNames" // Change this field to drugNames
           caption="Thuốc LASA"
           editCellRender={({ data, setValue }) => (
             <TagBox
               items={drugsData}
-              value={data.drugIds || []}
-              valueExpr="id"
+              value={data.drugNames || []} // Use drugNames instead of drugIds
+              valueExpr="name" // Use drug name instead of id
               displayExpr="name"
               onValueChanged={(e) => setValue(e.value)}
               searchEnabled
@@ -383,4 +383,3 @@ const App = () => {
 };
 
 export default App;
-
