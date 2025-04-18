@@ -1,0 +1,19 @@
+{
+    "lasa-groups": [
+      { "id": 1, "groupName": "Nhóm 1", "drugIds": [1, 2, 3] },
+      { "id": 2, "groupName": "Nhóm 2", "drugIds": [2, 4] }
+    ],
+    "drugs": [
+      { "id": 1, "name": "Aspirin" },
+      { "id": 2, "name": "Paracetamol" },
+      { "id": 3, "name": "Ibuprofen" },
+      { "id": 4, "name": "Amoxicillin" }
+    ],
+    "groups": [
+      { "name": "Nhóm 1" },
+      { "name": "Nhóm 2" },
+      { "name": "Nhóm 3" }
+    ]
+  }
+
+    

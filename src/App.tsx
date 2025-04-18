@@ -1,49 +1,49 @@
-import React, { useRef, useState } from "react";
-import DataGrid, {
-  Column,
-  Editing,
-  Popup,
-  Form,
-} from "devextreme-react/data-grid";
+import React, { useRef } from "react";
+import DataGrid, { Column, Editing, Popup, Form } from "devextreme-react/data-grid";
 import { Item } from "devextreme-react/form";
 import { TagBox } from "devextreme-react/tag-box";
+import CustomStore from "devextreme/data/custom_store";
 import groups from "../src/data/groups.json";
 import drugs from "../src/data/drugs.json";
 
-import "./App.css"; // 👈 import custom CSS để điều chỉnh spacing
+import "./App.css";
 
 const initialData = [
-  {
-    id: 1,
-    groupName: "Nhóm 1",
-    drugIds: [1, 2, 3],
-  },
-  {
-    id: 2,
-    groupName: "Nhóm 2",
-    drugIds: [2, 4],
-  },
+  { id: 1, groupName: "Đọc giống - Nhìn giống", drugIds: [1, 2, 3] },
+  { id: 2, groupName: "Đọc khác - nhìn khác", drugIds: [2, 4] },
 ];
 
+// Tạo CustomStore để quản lý CRUD
+const customStore = new CustomStore({
+  key: "id",
+  load: async () => {
+    return initialData;
+  },
+  insert: async (values) => {
+    const newId = initialData.length ? Math.max(...initialData.map((d) => d.id)) + 1 : 1;
+    const newItem = { ...values, id: newId };
+    initialData.push(newItem);
+    return newItem;
+  },
+  update: async (key, values) => {
+    const index = initialData.findIndex((item) => item.id === key);
+    if (index !== -1) {
+      initialData[index] = { ...initialData[index], ...values };
+    }
+  },
+  remove: async (key) => {
+    const index = initialData.findIndex((item) => item.id === key);
+    if (index !== -1) {
+      initialData.splice(index, 1);
+    }
+  },
+});
+
 const App = () => {
-  const [data, setData] = useState(initialData);
   const dataGridRef = useRef<any>(null);
 
   const groupOptions = groups;
   const drugsData = drugs;
-
-  const handleRowUpdating = (e: any) => {
-    const updatedRow = { ...e.oldData, ...e.newData };
-    setData((prev) =>
-      prev.map((item) => (item.id === updatedRow.id ? updatedRow : item))
-    );
-  };
-
-  const handleRowInserting = (e: any) => {
-    const newId = data.length ? Math.max(...data.map((d) => d.id)) + 1 : 1;
-    const newRow = { ...e.data, id: newId };
-    setData((prev) => [...prev, newRow]);
-  };
 
   const handleRowDblClick = (e: any) => {
     dataGridRef.current?.instance?.editRow(e.rowIndex);
@@ -76,28 +76,22 @@ const App = () => {
     <div style={{ padding: "30px" }}>
       <DataGrid
         ref={dataGridRef}
-        dataSource={data}
+        dataSource={customStore}
         keyExpr="id"
         showBorders={true}
-        onRowUpdating={handleRowUpdating}
-        onRowInserting={handleRowInserting}
         onRowDblClick={handleRowDblClick}
       >
         <Editing
           mode="popup"
           allowAdding={true}
-          allowUpdating={true}
+          // allowUpdating={true}
+          // allowDeleting={true}
           startEditAction="dblClick"
           useIcons={true}
         >
-          <Popup
-            title="Thông tin nhóm thuốc"
-            showTitle={true}
-            width={500}
-            height={300}
-          />
-
-          <Form colCount={1} labelLocation="top" cssClass="compact-form">
+          <Popup title="Thông tin" showTitle={true} width={500} height={300} />
+          <Form colCount={1} labelLocation="top" >
+          {/* <Form colCount={1} labelLocation="top" cssClass="compact-form"> */}
             <Item
               dataField="groupName"
               editorType="dxSelectBox"
@@ -105,7 +99,7 @@ const App = () => {
                 items: groupOptions,
                 valueExpr: "name",
                 displayExpr: "name",
-                placeholder: "Chọn nhómn...",
+                placeholder: "Chọn nhóm...",
                 searchEnabled: true,
               }}
             />
@@ -142,11 +136,20 @@ const App = () => {
               onValueChanged={(e) => setValue(e.value)}
               searchEnabled
               showSelectionControls
-              applyValueMode="useButtons"
+              // applyValueMode="useButtons"
               multiline
               showDropDownButton
               placeholder="Tìm và chọn thuốc..."
               dropDownOptions={{ height: 300 }}
+              onSelectionChanged={(e) => {
+                if (e.addedItems.length > 0) {
+                  (e.component.field() as HTMLInputElement).value = ""; // clear the textr
+                  e.component.close(); // close the drop down list
+                }
+                //còn hiển thị giá trị search trên thanh input
+                //custom xóa thì phải thao tác close dropdown
+                //https://supportcenter.devexpress.com/ticket/details/t994950/tagbox-how-to-clear-the-search-text-after-selecting-an-item
+              }}
             />
           )}
           cellRender={renderTagBox}
